@@ -1,0 +1,175 @@
+MODUL PRAKTIKUM
+Frontend Next.js untuk Backend Express.js CRUD
+Menghubungkan Frontend Next.js dengan REST API Express.js + MySQL
+
+Mata Kuliah
+Pengembangan Sistem / Pemrograman Web
+Topik
+Integrasi Frontend dan Backend
+Prasyarat
+Mahasiswa sudah memahami dasar Express.js CRUD dan dasar Next.js
+Stack
+Next.js, TypeScript, REST API, Fetch API, Express.js, MySQL
+Output
+Aplikasi frontend CRUD mahasiswa yang terhubung ke backend Express.js
+ Disusun sebagai lanjutan Modul Express.js CRUD Pertemuan 1-3
+
+1. Deskripsi Modul
+Modul ini membahas cara membuat frontend Next.js yang terhubung ke backend Express.js CRUD. Backend diasumsikan sudah tersedia dari materi sebelumnya, yaitu Express.js + TypeScript + MySQL menggunakan query SQL manual tanpa Prisma/ORM.
+Fokus utama modul ini bukan pada pembuatan backend ulang, tetapi pada cara frontend mengirim request HTTP ke backend, menerima response JSON, lalu menampilkan dan mengelola data pada halaman web.
+Prinsip utama Frontend tidak boleh langsung mengakses database. Alur yang benar adalah: Frontend Next.js -> Backend Express.js API -> Database MySQL.
+
+2. Tujuan Pembelajaran
+Memahami hubungan antara frontend Next.js dan backend Express.js.
+Menggunakan Fetch API untuk mengambil dan mengirim data ke REST API.
+Membuat halaman CRUD data mahasiswa pada Next.js.
+Mengelola state, form, loading, pesan sukses, dan pesan error.
+Memahami kebutuhan CORS ketika frontend dan backend berjalan pada port berbeda.
+Mampu menjalankan backend dan frontend secara terpisah dalam proses pengembangan.
+3. Arsitektur Sistem
+Backend Express.js berjalan pada port 3000, sedangkan frontend Next.js berjalan pada port 3001.
+Browser    ↓ Next.js Frontend (http://localhost:3001)    ↓ fetch() Express.js REST API (http://localhost:3000)    ↓ MySQL Database
+Contoh alur saat halaman mahasiswa dibuka:
+Halaman Next.js /mahasiswa    ↓ fetch("http://localhost:3000/api/mahasiswa")    ↓ Route Express GET /api/mahasiswa    ↓ Controller menjalankan query SELECT    ↓ Backend mengirim JSON    ↓ Frontend menampilkan data dalam tabel
+4. Endpoint Backend yang Dibutuhkan
+Frontend pada modul ini mengasumsikan backend Express.js sudah menyediakan endpoint berikut:
+Fungsi
+Method
+Endpoint
+Keterangan
+Read All
+GET
+/api/mahasiswa
+Mengambil semua data mahasiswa
+Create
+POST
+/api/mahasiswa
+Menambah data mahasiswa
+Update
+PUT
+/api/mahasiswa/:id
+Mengubah data mahasiswa
+Delete
+DELETE
+/api/mahasiswa/:id
+Menghapus data mahasiswa
+Contoh response yang diharapkan dari backend:
+{   "message": "Data mahasiswa berhasil diambil",   "data": [     {       "id": 1,       "nim": "2201001",       "nama": "Ahmad Fauzi",       "prodi": "Informatika",       "angkatan": 2022     }   ] }
+5. Mengaktifkan CORS di Backend Express.js
+Karena frontend berjalan di http://localhost:3001 dan backend berjalan di http://localhost:3000, maka browser menganggap keduanya sebagai origin yang berbeda. Backend harus mengizinkan request dari frontend menggunakan CORS.
+npm install cors npm install -D @types/cors
+Tambahkan konfigurasi berikut pada file src/app.ts di backend:
+import express from "express"; import cors from "cors"; import mahasiswaRoutes from "./routes/mahasiswa.route";  const app = express();  app.use(   cors({     origin: "http://localhost:3001",     methods: ["GET", "POST", "PUT", "DELETE"],     allowedHeaders: ["Content-Type"],   }) );  app.use(express.json());  app.get("/", (req, res) => {   res.json({ message: "Backend Express berjalan" }); });  app.use("/api/mahasiswa", mahasiswaRoutes);  export default app;
+Catatan mengajar Jangan menyarankan mahasiswa mematikan CORS melalui extension browser. Ajarkan bahwa CORS diselesaikan dari sisi server melalui konfigurasi backend.
+
+6. Membuat Project Frontend Next.js
+npx create-next-app@latest frontend-next-express-crud
+Gunakan pilihan berikut saat setup:
+TypeScript: Yes
+ESLint: Yes
+Tailwind CSS: No
+src/ directory: Yes
+App Router: Yes
+Import alias: Yes
+cd frontend-next-express-crud npm run dev -- -p 3001
+Akses frontend melalui browser:
+http://localhost:3001
+7. Konfigurasi Environment Variable
+Buat file .env.local pada root project frontend. File ini berisi alamat backend API.
+NEXT_PUBLIC_API_URL=http://localhost:3000/api
+Prefix NEXT_PUBLIC_ diperlukan agar environment variable dapat digunakan pada komponen yang berjalan di browser.
+8. Struktur Folder Frontend
+src/ ├── app/ │   ├── globals.css │   ├── layout.tsx │   ├── page.tsx │   └── mahasiswa/ │       └── page.tsx │ ├── components/ │   ├── MahasiswaForm.tsx │   └── MahasiswaTable.tsx │ └── lib/     └── api.ts
+File/Folder
+Fungsi
+src/app/mahasiswa/page.tsx
+Halaman utama CRUD mahasiswa
+src/components/MahasiswaForm.tsx
+Form tambah dan edit mahasiswa
+src/components/MahasiswaTable.tsx
+Tabel daftar mahasiswa
+src/lib/api.ts
+Kumpulan fungsi untuk mengakses backend API
+.env.local
+Menyimpan URL backend API
+9. Membuat Helper API
+Buat file src/lib/api.ts. File ini berisi fungsi untuk berkomunikasi dengan backend Express.js.
+export const API_URL =   process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000/api";  export type Mahasiswa = {   id: number;   nim: string;   nama: string;   prodi: string;   angkatan: number;   created_at?: string; };  export type MahasiswaInput = {   nim: string;   nama: string;   prodi: string;   angkatan: number; };  type ApiResponse<T> = {   message: string;   data?: T; };  async function handleResponse<T>(response: Response): Promise<ApiResponse<T>> {   const result = await response.json();    if (!response.ok) {     throw new Error(result.message || "Terjadi kesalahan saat mengakses API");   }    return result; }  export async function getMahasiswa(): Promise<Mahasiswa[]> {   const response = await fetch(`${API_URL}/mahasiswa`, {     cache: "no-store",   });    const result = await handleResponse<Mahasiswa[]>(response);   return result.data || []; }  export async function createMahasiswa(   payload: MahasiswaInput ): Promise<Mahasiswa> {   const response = await fetch(`${API_URL}/mahasiswa`, {     method: "POST",     headers: {       "Content-Type": "application/json",     },     body: JSON.stringify(payload),   });    const result = await handleResponse<Mahasiswa>(response);   return result.data as Mahasiswa; }  export async function updateMahasiswa(   id: number,   payload: MahasiswaInput ): Promise<void> {   const response = await fetch(`${API_URL}/mahasiswa/${id}`, {     method: "PUT",     headers: {       "Content-Type": "application/json",     },     body: JSON.stringify(payload),   });    await handleResponse(response); }  export async function deleteMahasiswa(id: number): Promise<void> {   const response = await fetch(`${API_URL}/mahasiswa/${id}`, {     method: "DELETE",   });    await handleResponse(response); }
+10. Membuat Komponen Form Mahasiswa
+Buat file src/components/MahasiswaForm.tsx. Komponen ini digunakan untuk tambah dan edit data.
+"use client";  import { FormEvent, useEffect, useState } from "react"; import { Mahasiswa, MahasiswaInput } from "@/lib/api";  type Props = {   selectedMahasiswa: Mahasiswa | null;   onSubmit: (payload: MahasiswaInput) => Promise<void>;   onCancelEdit: () => void; };  const initialForm: MahasiswaInput = {   nim: "",   nama: "",   prodi: "",   angkatan: new Date().getFullYear(), };  export default function MahasiswaForm({   selectedMahasiswa,   onSubmit,   onCancelEdit, }: Props) {   const [form, setForm] = useState<MahasiswaInput>(initialForm);   const [loading, setLoading] = useState(false);    useEffect(() => {     if (selectedMahasiswa) {       setForm({         nim: selectedMahasiswa.nim,         nama: selectedMahasiswa.nama,         prodi: selectedMahasiswa.prodi,         angkatan: selectedMahasiswa.angkatan,       });     } else {       setForm(initialForm);     }   }, [selectedMahasiswa]);    const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {     event.preventDefault();     setLoading(true);      try {       await onSubmit(form);       setForm(initialForm);     } finally {       setLoading(false);     }   };    return (     <form onSubmit={handleSubmit} className="card">       <h2>{selectedMahasiswa ? "Edit Mahasiswa" : "Tambah Mahasiswa"}</h2>        <div className="grid">         <div className="form-group">           <label htmlFor="nim">NIM</label>           <input             id="nim"             value={form.nim}             onChange={(e) => setForm({ ...form, nim: e.target.value })}             placeholder="Contoh: 2201001"             required           />         </div>          <div className="form-group">           <label htmlFor="nama">Nama</label>           <input             id="nama"             value={form.nama}             onChange={(e) => setForm({ ...form, nama: e.target.value })}             placeholder="Nama mahasiswa"             required           />         </div>          <div className="form-group">           <label htmlFor="prodi">Prodi</label>           <input             id="prodi"             value={form.prodi}             onChange={(e) => setForm({ ...form, prodi: e.target.value })}             placeholder="Informatika"             required           />         </div>          <div className="form-group">           <label htmlFor="angkatan">Angkatan</label>           <input             id="angkatan"             type="number"             value={form.angkatan}             onChange={(e) =>               setForm({ ...form, angkatan: Number(e.target.value) })             }             required           />         </div>       </div>        <div className="actions">         <button type="submit" className="btn-primary" disabled={loading}>           {loading ? "Menyimpan..." : selectedMahasiswa ? "Update" : "Simpan"}         </button>          {selectedMahasiswa && (           <button type="button" className="btn-secondary" onClick={onCancelEdit}>             Batal Edit           </button>         )}       </div>     </form>   ); }
+11. Membuat Komponen Tabel Mahasiswa
+"use client";  import { Mahasiswa } from "@/lib/api";  type Props = {   mahasiswa: Mahasiswa[];   onEdit: (item: Mahasiswa) => void;   onDelete: (id: number) => Promise<void>; };  export default function MahasiswaTable({ mahasiswa, onEdit, onDelete }: Props) {   if (mahasiswa.length === 0) {     return <p>Belum ada data mahasiswa.</p>;   }    return (     <table>       <thead>         <tr>           <th>No</th>           <th>NIM</th>           <th>Nama</th>           <th>Prodi</th>           <th>Angkatan</th>           <th>Aksi</th>         </tr>       </thead>        <tbody>         {mahasiswa.map((item, index) => (           <tr key={item.id}>             <td>{index + 1}</td>             <td>{item.nim}</td>             <td>{item.nama}</td>             <td>{item.prodi}</td>             <td>{item.angkatan}</td>             <td>               <div className="actions">                 <button className="btn-secondary" onClick={() => onEdit(item)}>                   Edit                 </button>                  <button className="btn-danger" onClick={() => onDelete(item.id)}>                   Hapus                 </button>               </div>             </td>           </tr>         ))}       </tbody>     </table>   ); }
+12. Membuat Halaman CRUD Mahasiswa
+Buat folder src/app/mahasiswa lalu buat file page.tsx di dalamnya.
+"use client";  import { useEffect, useState } from "react"; import Link from "next/link"; import MahasiswaForm from "@/components/MahasiswaForm"; import MahasiswaTable from "@/components/MahasiswaTable"; import {   createMahasiswa,   deleteMahasiswa,   getMahasiswa,   Mahasiswa,   MahasiswaInput,   updateMahasiswa, } from "@/lib/api";  export default function MahasiswaPage() {   const [mahasiswa, setMahasiswa] = useState<Mahasiswa[]>([]);   const [selectedMahasiswa, setSelectedMahasiswa] = useState<Mahasiswa | null>(null);   const [loading, setLoading] = useState(true);   const [message, setMessage] = useState("");   const [error, setError] = useState("");    const loadMahasiswa = async () => {     try {       setLoading(true);       setError("");       const data = await getMahasiswa();       setMahasiswa(data);     } catch (err) {       setError(err instanceof Error ? err.message : "Gagal mengambil data mahasiswa");     } finally {       setLoading(false);     }   };    useEffect(() => {     loadMahasiswa();   }, []);    const handleSubmit = async (payload: MahasiswaInput) => {     try {       setMessage("");       setError("");        if (selectedMahasiswa) {         await updateMahasiswa(selectedMahasiswa.id, payload);         setMessage("Data mahasiswa berhasil diperbarui");       } else {         await createMahasiswa(payload);         setMessage("Data mahasiswa berhasil ditambahkan");       }        setSelectedMahasiswa(null);       await loadMahasiswa();     } catch (err) {       setError(err instanceof Error ? err.message : "Gagal menyimpan data");     }   };    const handleDelete = async (id: number) => {     const confirmed = window.confirm("Yakin ingin menghapus data ini?");     if (!confirmed) return;      try {       setMessage("");       setError("");       await deleteMahasiswa(id);       setMessage("Data mahasiswa berhasil dihapus");       await loadMahasiswa();     } catch (err) {       setError(err instanceof Error ? err.message : "Gagal menghapus data");     }   };    return (     <main className="container">       <div className="header">         <div>           <h1>CRUD Data Mahasiswa</h1>           <p>Frontend Next.js yang terhubung ke backend Express.js.</p>         </div>          <Link href="/">           <button className="btn-secondary">Kembali</button>         </Link>       </div>        {message && <div className="message">{message}</div>}       {error && <div className="message error">{error}</div>}        <MahasiswaForm         selectedMahasiswa={selectedMahasiswa}         onSubmit={handleSubmit}         onCancelEdit={() => setSelectedMahasiswa(null)}       />        <section className="card" style={{ marginTop: 20 }}>         <h2>Daftar Mahasiswa</h2>         {loading ? (           <p>Memuat data...</p>         ) : (           <MahasiswaTable             mahasiswa={mahasiswa}             onEdit={setSelectedMahasiswa}             onDelete={handleDelete}           />         )}       </section>     </main>   ); }
+13. Halaman Awal dan CSS
+Edit file src/app/page.tsx:
+import Link from "next/link";  export default function HomePage() {   return (     <main className="container">       <div className="card">         <h1>Frontend Next.js untuk Express CRUD API</h1>         <p>           Aplikasi ini adalah contoh frontend Next.js yang mengakses backend           Express.js melalui REST API.         </p>          <Link href="/mahasiswa">           <button className="btn-primary">Buka Data Mahasiswa</button>         </Link>       </div>     </main>   ); }
+Edit file src/app/globals.css:
+* {   box-sizing: border-box; }  body {   margin: 0;   font-family: Arial, Helvetica, sans-serif;   background: #f5f7fb;   color: #1f2937; }  a {   color: inherit;   text-decoration: none; }  .container {   width: min(1100px, 92%);   margin: 0 auto;   padding: 32px 0; }  .card {   background: #ffffff;   border: 1px solid #e5e7eb;   border-radius: 12px;   padding: 20px;   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04); }  .header {   display: flex;   justify-content: space-between;   gap: 16px;   align-items: center;   margin-bottom: 20px; }  .grid {   display: grid;   grid-template-columns: repeat(2, minmax(0, 1fr));   gap: 16px; }  .form-group {   display: flex;   flex-direction: column;   gap: 6px;   margin-bottom: 12px; }  label {   font-size: 14px;   font-weight: 600; }  input {   border: 1px solid #d1d5db;   border-radius: 8px;   padding: 10px 12px;   font-size: 14px; }  button {   border: none;   border-radius: 8px;   padding: 10px 14px;   cursor: pointer;   font-weight: 600; }  .btn-primary {   background: #2563eb;   color: white; }  .btn-secondary {   background: #e5e7eb;   color: #111827; }  .btn-danger {   background: #dc2626;   color: white; }  .actions {   display: flex;   gap: 8px; }  table {   width: 100%;   border-collapse: collapse;   margin-top: 16px; }  th, td {   border-bottom: 1px solid #e5e7eb;   padding: 12px;   text-align: left;   font-size: 14px; }  th {   background: #f9fafb; }  .message {   margin: 12px 0;   padding: 12px;   border-radius: 8px;   background: #eff6ff;   color: #1d4ed8; }  .error {   background: #fef2f2;   color: #b91c1c; }  @media (max-width: 768px) {   .grid {     grid-template-columns: 1fr;   }    .header {     align-items: flex-start;     flex-direction: column;   }    table {     display: block;     overflow-x: auto;   } }
+14. Cara Menjalankan Backend dan Frontend
+14.1 Menjalankan Backend Express.js
+cd express-crud-mahasiswa npm run dev
+Pastikan backend berjalan di:
+http://localhost:3000
+14.2 Menjalankan Frontend Next.js
+cd frontend-next-express-crud npm install npm run dev -- -p 3001
+Akses halaman CRUD melalui:
+http://localhost:3001/mahasiswa
+15. Alur Teknis Integrasi Frontend dan Backend
+15.1 Menampilkan Data
+Saat halaman /mahasiswa dibuka, useEffect menjalankan loadMahasiswa untuk memanggil API backend.
+useEffect(() => {   loadMahasiswa(); }, []);  const data = await getMahasiswa(); setMahasiswa(data);
+15.2 Menambah Data
+Saat tombol Simpan diklik, frontend mengirim method POST ke backend dengan body JSON.
+await createMahasiswa(payload); await loadMahasiswa();
+15.3 Mengubah Data
+Saat tombol Edit diklik, data dipindahkan ke form. Saat Update diklik, frontend mengirim method PUT ke endpoint berdasarkan id.
+await updateMahasiswa(selectedMahasiswa.id, payload);
+15.4 Menghapus Data
+Saat tombol Hapus diklik, frontend mengirim method DELETE ke backend.
+await deleteMahasiswa(id); await loadMahasiswa();
+16. Troubleshooting
+Masalah
+Kemungkinan Penyebab
+Solusi
+CORS error
+Backend belum mengizinkan origin frontend
+Aktifkan cors({ origin: "http://localhost:3001" }) di backend
+Failed to fetch
+Backend belum berjalan, port salah, atau URL API salah
+Cek http://localhost:3000/api/mahasiswa dan .env.local
+Data tidak muncul
+Format response backend tidak sesuai
+Pastikan response memiliki field data
+Form tidak bisa diketik
+Input tidak terhubung ke state dengan benar
+Periksa value dan onChange
+Update selalu menambah data baru
+selectedMahasiswa tidak diset saat tombol Edit diklik
+Pastikan onEdit={setSelectedMahasiswa}
+17. Catatan
+Tekankan bahwa frontend tidak langsung mengakses database.
+Mahasiswa perlu memahami bahwa data dikirim dalam format JSON.
+Jelaskan bahwa fetch menghasilkan Promise sehingga perlu async/await.
+Bedakan state untuk data, loading, error, dan mode edit.
+Gunakan Postman atau Thunder Client terlebih dahulu untuk memastikan backend berjalan sebelum menghubungkan frontend.
+18. Tugas Praktikum
+Tugas 1 - Menjalankan Dua Server
+Jalankan backend di port 3000 dan frontend di port 3001. Kumpulkan screenshot halaman backend API dan halaman frontend.
+Tugas 2 - CRUD Produk
+Buat halaman frontend untuk CRUD data Produk dengan field id, nama, harga, dan stok. Gunakan endpoint GET, POST, PUT, dan DELETE.
+Tugas 3 - Pencarian Data
+Tambahkan fitur pencarian nama mahasiswa di frontend menggunakan filter().
+Tugas 4 - Pesan Error dan Loading
+Tambahkan tampilan loading dan pesan error yang jelas saat backend tidak berjalan atau request gagal.
+19. Kesimpulan
+Stack pembelajaran pada modul ini adalah Next.js + TypeScript untuk frontend dan Express.js + TypeScript + mysql2 + MySQL untuk backend. Fokusnya adalah memahami komunikasi antara frontend dan backend melalui REST API.
+Frontend Next.js    ↓ HTTP Request menggunakan fetch() Backend Express.js    ↓ Query SQL manual Database MySQL    ↓ JSON Response Frontend menampilkan data
+Dengan memahami alur ini, mahasiswa memiliki dasar yang kuat sebelum mempelajari teknologi lanjutan seperti ORM, autentikasi, deployment, atau integrasi frontend-backend yang lebih kompleks.
+Referensi
+Express.js Documentation - Routing, Middleware, dan Error Handling.
+Next.js Documentation - App Router, Client Components, dan Environment Variables.
+MDN Web Docs - Fetch API dan CORS.
+MySQL2 Documentation - Promise-based MySQL client for Node.js.
