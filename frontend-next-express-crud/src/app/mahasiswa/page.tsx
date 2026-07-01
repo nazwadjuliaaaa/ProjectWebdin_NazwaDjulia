@@ -206,7 +206,9 @@ export default function MahasiswaPage() {
         <div>
           <h1>📋 Data Mahasiswa</h1>
           <p>
-            Kelola data mahasiswa — tambah, edit, hapus, cari, dan filter.
+            {canEdit
+              ? "Kelola data mahasiswa — tambah, edit, hapus, cari, dan filter."
+              : "Lihat data mahasiswa — cari dan filter."}
           </p>
         </div>
       </div>
