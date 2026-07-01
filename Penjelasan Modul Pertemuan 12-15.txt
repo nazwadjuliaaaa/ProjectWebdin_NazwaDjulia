@@ -1,86 +1,0 @@
-MODUL 3
-Penguatan CRUD, Autentikasi, Role Authorization, dan Manajemen User
-Backend Express.js TypeScript + MySQL2 dan Frontend Next.js
-Pertemuan 12-15
-
-
-
-Deskripsi singkat
-Modul ini melanjutkan CRUD dasar Express.js dan frontend Next.js. Fokus utama modul adalah membuat aplikasi lebih realistis: relasi tabel mahasiswa-prodi, upload foto, search/filter/pagination, autentikasi JWT, role authorization, CRUD user, dan reset password.
-KomponenTeknologi yang digunakanBackendExpress.js, TypeScript, MySQL2, Multer, bcrypt, jsonwebtoken, NodemailerFrontendNext.js, TypeScript, fetch, FormData, localStorage untuk latihan awalDatabaseMySQL/MariaDBStudi kasusSistem Data Mahasiswa, Prodi, dan User
-
-
-Daftar Isi
-1. Peta Kompetensi Modul 3
-2. Struktur Project Akhir
-3. Pertemuan 12 - Relasi Tabel, Upload Foto, Search, Filter, Pagination, dan Integrasi Frontend
-4. Pertemuan 13 - Authentication, Session Management, Register, Login, Hash Password, JWT, Protected Route, dan Logout
-5. Pertemuan 14 - Role Authorization Admin / Operator / Viewer
-6. Pertemuan 15 - CRUD Daftar User dan Reset Password dengan Pertimbangan SMTP Gmail
-7. Tugas Praktikum dan Rubrik Penilaian
-8. Troubleshooting
-9. Referensi
-Catatan: daftar isi ini dibuat statis agar modul tetap mudah dibuka tanpa perlu update field Microsoft Word.
-
-
-Peta Kompetensi Modul 3
-Setelah menyelesaikan modul ini, mahasiswa diharapkan mampu:
-* Membuat relasi tabel sederhana antara mahasiswa dan prodi menggunakan foreign key.
-* Membuat endpoint CRUD mahasiswa yang mendukung upload foto, search, filter, dan pagination.
-* Menghubungkan frontend Next.js dengan backend Express.js menggunakan fetch, URLSearchParams, FormData, dan Authorization header.
-* Membuat fitur register dan login menggunakan hash password dan JWT.
-* Membuat protected route agar endpoint tertentu hanya dapat diakses oleh user yang sudah login.
-* Membuat role authorization untuk membedakan akses admin, operator, dan viewer.
-* Membuat CRUD daftar user dan fitur reset password, termasuk opsi pengiriman email menggunakan SMTP Gmail untuk kebutuhan praktik.
-PertemuanFokus MateriOutput Praktik12Relasi tabel, upload foto, search, filter, pagination, integrasi frontendCRUD mahasiswa dengan prodi, foto, dan tabel frontend yang dapat dicari/difilter13Register, login, hash password, JWT, protected route, logoutEndpoint auth dan frontend login/logout!4Role authorization admin/operator/viewerEndpoint dibatasi berdasarkan role user15CRUD user dan reset password; pertimbangan SMTP GmailHalaman admin untuk kelola user dan reset password
-Prasyarat
-* Mahasiswa sudah dapat menjalankan backend Express.js TypeScript.
-* Mahasiswa sudah memahami endpoint CRUD dasar dengan MySQL2.
-* Mahasiswa sudah dapat menjalankan frontend Next.js dan memanggil REST API backend.
-* Database MySQL/MariaDB sudah aktif dan bisa diakses dari backend.
-Struktur Project Akhir
-Struktur berikut digunakan sebagai target akhir modul. Dosen dapat menyesuaikan nama folder sesuai modul sebelumnya.
-
-backend-express-crud/
-+-- src/
-¦   +-- config/
-¦   ¦   +-- database.ts
-¦   ¦   +-- mail.ts
-¦   +-- controllers/
-¦   ¦   +-- auth.controller.ts
-¦   ¦   +-- mahasiswa.controller.ts
-¦   ¦   +-- prodi.controller.ts
-¦   ¦   +-- user.controller.ts
-¦   +-- middlewares/
-¦   ¦   +-- auth.middleware.ts
-¦   ¦   +-- role.middleware.ts
-¦   ¦   +-- upload.middleware.ts
-¦   +-- routes/
-¦   ¦   +-- auth.route.ts
-¦   ¦   +-- mahasiswa.route.ts
-¦   ¦   +-- prodi.route.ts
-¦   ¦   +-- user.route.ts
-¦   +-- app.ts
-¦   +-- server.ts
-+-- uploads/
-¦   +-- mahasiswa/
-+-- .env
-+-- package.json
- 
-frontend-next-express-crud/
-+-- src/
-¦   +-- app/
-¦   ¦   +-- login/page.tsx
-¦   ¦   +-- mahasiswa/page.tsx
-¦   ¦   +-- users/page.tsx
-¦   +-- components/
-¦   +-- lib/
-¦       +-- api.ts
-¦       +-- auth.ts
-+-- .env.local
-
-
-Modul 3 - Penguatan CRUD, Auth, Role, dan Manajemen User
-
-Express.js + TypeScript + MySQL2 + Next.js
-

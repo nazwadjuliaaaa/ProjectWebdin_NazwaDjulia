@@ -28,3 +28,6 @@ out/
 # OS metadata
 .DS_Store
 Thumbs.db
+
+# File modul/tugas (tidak perlu di-push)
+*.txt
