@@ -48,10 +48,6 @@ export type User = {
 // ─── Helper: Auth Headers ───────────────────────────
 
 function authHeaders(): Record<string, string> {
-  const token = getToken();
-  if (token) {
-    return { Authorization: `Bearer ${token}` };
-  }
   return {};
 }
 

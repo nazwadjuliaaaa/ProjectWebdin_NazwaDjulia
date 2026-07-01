@@ -11,15 +11,12 @@ export default function HomePage() {
   const [loggedIn, setLoggedIn] = useState(false);
 
   useEffect(() => {
-    setLoggedIn(isLoggedIn());
-    setUser(getUser());
+    setLoggedIn(true);
+    setUser({ id: 1, nama: "User Kelas", email: "guest@kampus.ac.id", role: "admin" });
   }, []);
 
   const handleLogout = () => {
-    logout();
-    setLoggedIn(false);
-    setUser(null);
-    router.push("/login");
+    // skipped for tugas-kelas
   };
 
   return (
@@ -41,18 +38,8 @@ export default function HomePage() {
 
             <div className="home-buttons">
               <Link href="/mahasiswa">
-                <button className="btn-primary">📋 Data Mahasiswa</button>
+                <button className="btn-primary">📋 Buka Data Mahasiswa</button>
               </Link>
-
-              {user.role === "admin" && (
-                <Link href="/users">
-                  <button className="btn-secondary">👥 Manajemen User</button>
-                </Link>
-              )}
-
-              <button className="btn-danger" onClick={handleLogout}>
-                🚪 Logout
-              </button>
             </div>
           </div>
         ) : (
