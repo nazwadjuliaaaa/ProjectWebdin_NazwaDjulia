@@ -4,8 +4,8 @@ import path from "path";
 import multer from "multer";
 import mahasiswaRoutes from "./routes/mahasiswa.route";
 import prodiRoutes from "./routes/prodi.route";
-import authRoutes from "./routes/auth.route";
-import userRoutes from "./routes/user.route";
+// import authRoutes from "./routes/auth.route";
+// import userRoutes from "./routes/user.route";
 
 const app = express();
 
@@ -24,10 +24,10 @@ app.get("/", (req, res) => {
   res.json({ message: "Backend Express berjalan" });
 });
 
-app.use("/api/auth", authRoutes);
+// app.use("/api/auth", authRoutes);
 app.use("/api/prodi", prodiRoutes);
 app.use("/api/mahasiswa", mahasiswaRoutes);
-app.use("/api/users", userRoutes);
+// app.use("/api/users", userRoutes);
 
 // Global error handler — menangkap error Multer dan error lainnya
 app.use((err: any, req: Request, res: Response, next: NextFunction) => {

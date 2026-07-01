@@ -26,7 +26,11 @@ export default function MahasiswaPage() {
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
-  const [currentUser, setCurrentUser] = useState<UserData | null>(null);
+  const [currentUser, setCurrentUser] = useState<UserData | null>({
+    id: 1,
+    nama: "Guest",
+    role: "admin",
+  });
 
   // Search, Filter & Pagination
   const [search, setSearch] = useState("");
@@ -36,16 +40,12 @@ export default function MahasiswaPage() {
   const [totalPage, setTotalPage] = useState(1);
   const [total, setTotal] = useState(0);
 
-  // Auth check
+  // No auth check for Tugas Kelas branch
   useEffect(() => {
-    if (!isLoggedIn()) {
-      router.push("/login");
-      return;
-    }
-    setCurrentUser(getUser());
-  }, [router]);
+    // skipped
+  }, []);
 
-  const canEdit = currentUser?.role === "admin" || currentUser?.role === "operator";
+  const canEdit = true;
 
   const loadProdi = async () => {
     try {
@@ -70,30 +70,21 @@ export default function MahasiswaPage() {
       setTotalPage(result.meta.totalPage);
       setTotal(result.meta.total);
     } catch (err) {
-      if (err instanceof Error && err.message.includes("Token")) {
-        logout();
-        router.push("/login");
-        return;
-      }
       setError(
         err instanceof Error ? err.message : "Gagal mengambil data mahasiswa"
       );
     } finally {
       setLoading(false);
     }
-  }, [search, prodiId, page, limit, router]);
+  }, [search, prodiId, page, limit]);
 
   useEffect(() => {
-    if (currentUser) {
-      loadProdi();
-    }
-  }, [currentUser]);
+    loadProdi();
+  }, []);
 
   useEffect(() => {
-    if (currentUser) {
-      loadMahasiswa();
-    }
-  }, [page, loadMahasiswa, currentUser]);
+    loadMahasiswa();
+  }, [page, loadMahasiswa, prodiId]);
 
   const handleSearch = () => {
     setPage(1);
@@ -112,9 +103,7 @@ export default function MahasiswaPage() {
   };
 
   useEffect(() => {
-    if (currentUser) {
-      loadMahasiswa();
-    }
+    loadMahasiswa();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [prodiId]);
 
@@ -178,26 +167,12 @@ export default function MahasiswaPage() {
       {/* Navbar */}
       <nav className="navbar">
         <div className="navbar-brand">
-          <Link href="/">🎓 Sistem Kampus</Link>
+          <Link href="/mahasiswa">🎓 Sistem Kampus (Tugas Kelas)</Link>
         </div>
         <div className="navbar-menu">
           <Link href="/mahasiswa">
             <button className="btn-secondary nav-btn nav-active">📋 Mahasiswa</button>
           </Link>
-          {currentUser.role === "admin" && (
-            <Link href="/users">
-              <button className="btn-secondary nav-btn">👥 Users</button>
-            </Link>
-          )}
-          <div className="navbar-user">
-            <span className="navbar-user-info">
-              {currentUser.nama}
-              <span className="badge badge-sm">{currentUser.role}</span>
-            </span>
-            <button className="btn-danger nav-btn" onClick={handleLogout}>
-              🚪 Logout
-            </button>
-          </div>
         </div>
       </nav>
 
