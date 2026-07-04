@@ -45,7 +45,7 @@ export default function MahasiswaPage() {
     setCurrentUser(getUser());
   }, [router]);
 
-  const canEdit = true;
+  const canEdit = currentUser?.role === "admin" || currentUser?.role === "operator";
 
   const loadProdi = async () => {
     try {
