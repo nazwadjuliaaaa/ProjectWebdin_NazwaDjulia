@@ -1,3 +1,4 @@
+// Pertemuan 13: Authentication, Register, Login, JWT, Hash Password
 import { Request, Response } from "express";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";

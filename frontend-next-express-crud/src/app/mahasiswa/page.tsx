@@ -26,11 +26,7 @@ export default function MahasiswaPage() {
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
-  const [currentUser, setCurrentUser] = useState<UserData | null>({
-    id: 1,
-    nama: "Guest",
-    role: "admin",
-  });
+  const [currentUser, setCurrentUser] = useState<UserData | null>(null);
 
   // Search, Filter & Pagination
   const [search, setSearch] = useState("");
@@ -40,10 +36,14 @@ export default function MahasiswaPage() {
   const [totalPage, setTotalPage] = useState(1);
   const [total, setTotal] = useState(0);
 
-  // No auth check for Tugas Kelas branch
+  // Auth check
   useEffect(() => {
-    // skipped
-  }, []);
+    if (!isLoggedIn()) {
+      router.push("/login");
+      return;
+    }
+    setCurrentUser(getUser());
+  }, [router]);
 
   const canEdit = true;
 
@@ -70,21 +70,30 @@ export default function MahasiswaPage() {
       setTotalPage(result.meta.totalPage);
       setTotal(result.meta.total);
     } catch (err) {
+      if (err instanceof Error && err.message.includes("Token")) {
+        logout();
+        router.push("/login");
+        return;
+      }
       setError(
         err instanceof Error ? err.message : "Gagal mengambil data mahasiswa"
       );
     } finally {
       setLoading(false);
     }
-  }, [search, prodiId, page, limit]);
+  }, [search, prodiId, page, limit, router]);
 
   useEffect(() => {
-    loadProdi();
-  }, []);
+    if (currentUser) {
+      loadProdi();
+    }
+  }, [currentUser]);
 
   useEffect(() => {
-    loadMahasiswa();
-  }, [page, loadMahasiswa, prodiId]);
+    if (currentUser) {
+      loadMahasiswa();
+    }
+  }, [page, loadMahasiswa, currentUser]);
 
   const handleSearch = () => {
     setPage(1);
@@ -103,7 +112,9 @@ export default function MahasiswaPage() {
   };
 
   useEffect(() => {
-    loadMahasiswa();
+    if (currentUser) {
+      loadMahasiswa();
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [prodiId]);
 
@@ -114,10 +125,10 @@ export default function MahasiswaPage() {
 
       if (selectedMahasiswa) {
         await updateMahasiswa(selectedMahasiswa.id, formData);
-        setMessage("✅ Data mahasiswa berhasil diperbarui");
+        setMessage("Data mahasiswa berhasil diperbarui");
       } else {
         await createMahasiswa(formData);
-        setMessage("✅ Data mahasiswa berhasil ditambahkan");
+        setMessage("Data mahasiswa berhasil ditambahkan");
       }
 
       setSelectedMahasiswa(null);
@@ -137,7 +148,7 @@ export default function MahasiswaPage() {
       setMessage("");
       setError("");
       await deleteMahasiswa(id);
-      setMessage("✅ Data mahasiswa berhasil dihapus");
+      setMessage("Data mahasiswa berhasil dihapus");
       await loadMahasiswa();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Gagal menghapus data");
@@ -167,19 +178,29 @@ export default function MahasiswaPage() {
       {/* Navbar */}
       <nav className="navbar">
         <div className="navbar-brand">
-          <Link href="/mahasiswa">🎓 Sistem Kampus (Tugas Kelas)</Link>
+          <Link href="/">Sistem Kampus</Link>
         </div>
         <div className="navbar-menu">
           <Link href="/mahasiswa">
-            <button className="btn-secondary nav-btn nav-active">📋 Mahasiswa</button>
+            <button className="btn-secondary nav-btn nav-active">Mahasiswa</button>
           </Link>
+
+          <div className="navbar-user">
+            <span className="navbar-user-info">
+              {currentUser.nama}
+              <span className="badge badge-sm">{currentUser.role}</span>
+            </span>
+            <button className="btn-danger nav-btn" onClick={handleLogout}>
+              Logout
+            </button>
+          </div>
         </div>
       </nav>
 
       {/* Header */}
       <div className="header">
         <div>
-          <h1>📋 Data Mahasiswa</h1>
+          <h1>Data Mahasiswa</h1>
           <p>
             {canEdit
               ? "Kelola data mahasiswa — tambah, edit, hapus, cari, dan filter."
@@ -190,7 +211,7 @@ export default function MahasiswaPage() {
 
       {/* Messages */}
       {message && <div className="message success">{message}</div>}
-      {error && <div className="message error">❌ {error}</div>}
+      {error && <div className="message error">{error}</div>}
 
       {/* Form — hanya tampil untuk admin/operator */}
       {canEdit && (
@@ -204,7 +225,7 @@ export default function MahasiswaPage() {
 
       {/* Data Table Section */}
       <section className="card section-gap">
-        <h2>📊 Daftar Mahasiswa</h2>
+        <h2>Daftar Mahasiswa</h2>
 
         {/* Toolbar: Search + Filter */}
         <div className="toolbar">
@@ -247,7 +268,7 @@ export default function MahasiswaPage() {
           </select>
 
           <button className="btn-primary" onClick={handleSearch}>
-            🔍 Cari
+            Cari
           </button>
         </div>
 
@@ -279,10 +300,10 @@ export default function MahasiswaPage() {
         {!loading && totalPage > 0 && (
           <div className="pagination">
             <button disabled={page <= 1} onClick={() => setPage(1)}>
-              ⏮ Awal
+              Awal
             </button>
             <button disabled={page <= 1} onClick={() => setPage(page - 1)}>
-              ◀ Prev
+              Prev
             </button>
 
             <span className="pagination-info">
@@ -293,13 +314,13 @@ export default function MahasiswaPage() {
               disabled={page >= totalPage}
               onClick={() => setPage(page + 1)}
             >
-              Next ▶
+              Next
             </button>
             <button
               disabled={page >= totalPage}
               onClick={() => setPage(totalPage)}
             >
-              Akhir ⏭
+              Akhir
             </button>
           </div>
         )}

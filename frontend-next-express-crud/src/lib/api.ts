@@ -48,6 +48,10 @@ export type User = {
 // ─── Helper: Auth Headers ───────────────────────────
 
 function authHeaders(): Record<string, string> {
+  const token = getToken();
+  if (token) {
+    return { Authorization: `Bearer ${token}` };
+  }
   return {};
 }
 
@@ -164,68 +168,3 @@ export async function deleteMahasiswa(id: number): Promise<void> {
 
 // ─── Users API (Admin) ─────────────────────────────
 
-export async function getUsers(): Promise<User[]> {
-  const response = await fetch(`${API_URL}/users`, {
-    headers: authHeaders(),
-    cache: "no-store",
-  });
-
-  const result = await response.json();
-  if (!response.ok) throw new Error(result.message);
-  return result.data || [];
-}
-
-export async function createUserApi(payload: {
-  nama: string;
-  email: string;
-  password: string;
-  role: string;
-}): Promise<User> {
-  const response = await fetch(`${API_URL}/users`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json", ...authHeaders() },
-    body: JSON.stringify(payload),
-  });
-
-  const result = await response.json();
-  if (!response.ok) throw new Error(result.message);
-  return result.data as User;
-}
-
-export async function updateUserApi(
-  id: number,
-  payload: { nama: string; email: string; role: string }
-): Promise<void> {
-  const response = await fetch(`${API_URL}/users/${id}`, {
-    method: "PUT",
-    headers: { "Content-Type": "application/json", ...authHeaders() },
-    body: JSON.stringify(payload),
-  });
-
-  const result = await response.json();
-  if (!response.ok) throw new Error(result.message);
-}
-
-export async function deleteUserApi(id: number): Promise<void> {
-  const response = await fetch(`${API_URL}/users/${id}`, {
-    method: "DELETE",
-    headers: authHeaders(),
-  });
-
-  const result = await response.json();
-  if (!response.ok) throw new Error(result.message);
-}
-
-export async function resetPasswordApi(
-  id: number,
-  new_password: string
-): Promise<void> {
-  const response = await fetch(`${API_URL}/users/${id}/reset-password`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json", ...authHeaders() },
-    body: JSON.stringify({ new_password }),
-  });
-
-  const result = await response.json();
-  if (!response.ok) throw new Error(result.message);
-}

@@ -11,18 +11,21 @@ export default function HomePage() {
   const [loggedIn, setLoggedIn] = useState(false);
 
   useEffect(() => {
-    setLoggedIn(true);
-    setUser({ id: 1, nama: "User Kelas", email: "guest@kampus.ac.id", role: "admin" });
+    setLoggedIn(isLoggedIn());
+    setUser(getUser());
   }, []);
 
   const handleLogout = () => {
-    // skipped for tugas-kelas
+    logout();
+    setLoggedIn(false);
+    setUser(null);
+    router.push("/login");
   };
 
   return (
     <main className="container">
       <div className="card home-card">
-        <h1>🎓 Sistem Informasi Mahasiswa</h1>
+        <h1>Sistem Informasi Mahasiswa</h1>
         <p>
           Aplikasi CRUD mahasiswa dengan fitur relasi tabel prodi, upload foto,
           search, filter, pagination, autentikasi JWT, role authorization, dan
@@ -38,14 +41,20 @@ export default function HomePage() {
 
             <div className="home-buttons">
               <Link href="/mahasiswa">
-                <button className="btn-primary">📋 Buka Data Mahasiswa</button>
+                <button className="btn-primary">Data Mahasiswa</button>
               </Link>
+
+
+
+              <button className="btn-danger" onClick={handleLogout}>
+                Logout
+              </button>
             </div>
           </div>
         ) : (
           <div className="home-buttons">
             <Link href="/login">
-              <button className="btn-primary">🔑 Login / Register</button>
+              <button className="btn-primary">Login / Register</button>
             </Link>
           </div>
         )}

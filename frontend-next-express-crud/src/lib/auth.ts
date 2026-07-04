@@ -1,4 +1,4 @@
-// Auth helper — menggunakan localStorage untuk menyimpan token dan data user
+// Pertemuan 13: Auth helper — menggunakan localStorage untuk menyimpan token dan data user
 
 export type UserData = {
   id: number;

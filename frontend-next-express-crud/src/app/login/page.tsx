@@ -1,3 +1,4 @@
+// Pertemuan 13: Login & Register page
 "use client";
 
 import { useState } from "react";
@@ -75,14 +76,13 @@ export default function LoginPage() {
         <div className="login-card card">
           {/* Logo / Title */}
           <div className="login-header">
-            <div className="login-icon">🎓</div>
             <h1>Sistem Kampus</h1>
             <p>Masuk untuk mengakses data mahasiswa</p>
           </div>
 
           {/* Messages */}
           {message && <div className="message success">{message}</div>}
-          {error && <div className="message error">❌ {error}</div>}
+          {error && <div className="message error">{error}</div>}
 
           {/* Tab Switcher */}
           <div className="tab-switcher">
@@ -94,7 +94,7 @@ export default function LoginPage() {
                 setMessage("");
               }}
             >
-              🔑 Login
+              Login
             </button>
             <button
               className={`tab ${activeTab === "register" ? "tab-active" : ""}`}
@@ -104,7 +104,7 @@ export default function LoginPage() {
                 setMessage("");
               }}
             >
-              📝 Register
+              Register
             </button>
           </div>
 
@@ -140,7 +140,7 @@ export default function LoginPage() {
                 className="btn-primary btn-full"
                 disabled={loading}
               >
-                {loading ? "⏳ Memproses..." : "🔑 Masuk"}
+                {loading ? "Memproses..." : "Masuk"}
               </button>
             </form>
           )}
@@ -202,16 +202,11 @@ export default function LoginPage() {
                 className="btn-primary btn-full"
                 disabled={loading}
               >
-                {loading ? "⏳ Memproses..." : "📝 Daftar"}
+                {loading ? "Memproses..." : "Daftar"}
               </button>
             </form>
           )}
-
-          <div className="login-footer">
-            <p>
-              Default admin: <strong>admin@kampus.ac.id</strong>
-            </p>
-          </div>
+          
         </div>
       </div>
     </main>

@@ -6,13 +6,17 @@ import {
   deleteMahasiswa,
 } from "../controllers/mahasiswa.controller";
 import { uploadFotoMahasiswa } from "../middlewares/upload.middleware";
+import { verifyToken } from "../middlewares/auth.middleware";
+import { authorizeRole } from "../middlewares/role.middleware";
 
 const router = Router();
 
-// Semua endpoint bebas diakses tanpa token/role
-router.get("/", getAllMahasiswa);
-router.post("/", uploadFotoMahasiswa.single("foto"), createMahasiswa);
-router.put("/:id", uploadFotoMahasiswa.single("foto"), updateMahasiswa);
-router.delete("/:id", deleteMahasiswa);
+// GET: semua role boleh melihat data
+router.get("/", verifyToken, getAllMahasiswa);
+
+// POST, PUT, DELETE: hanya admin dan operator
+router.post("/", verifyToken, uploadFotoMahasiswa.single("foto"), createMahasiswa);
+router.put("/:id", verifyToken, uploadFotoMahasiswa.single("foto"), updateMahasiswa);
+router.delete("/:id", verifyToken, deleteMahasiswa);
 
 export default router;
