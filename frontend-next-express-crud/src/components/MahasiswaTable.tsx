@@ -87,7 +87,7 @@ export default function MahasiswaTable({
                       onClick={() => onEdit?.(item)}
                       title="Edit mahasiswa"
                     >
-                      ✏️ Edit
+                      Edit
                     </button>
 
                     <button
@@ -95,7 +95,7 @@ export default function MahasiswaTable({
                       onClick={() => onDelete?.(item.id)}
                       title="Hapus mahasiswa"
                     >
-                      🗑️ Hapus
+                      Hapus
                     </button>
                   </div>
                 </td>

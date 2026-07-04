@@ -92,7 +92,7 @@ export default function MahasiswaForm({
   return (
     <form onSubmit={handleSubmit} className="card">
       <h2>
-        {selectedMahasiswa ? "✏️ Edit Mahasiswa" : "➕ Tambah Mahasiswa"}
+        {selectedMahasiswa ? "Edit Mahasiswa" : "Tambah Mahasiswa"}
       </h2>
 
       <div className="grid">
@@ -179,10 +179,10 @@ export default function MahasiswaForm({
       <div className="actions">
         <button type="submit" className="btn-primary" disabled={loading}>
           {loading
-            ? "⏳ Menyimpan..."
+            ? "Menyimpan..."
             : selectedMahasiswa
-            ? "💾 Update"
-            : "💾 Simpan"}
+            ? "Update"
+            : "Simpan"}
         </button>
 
         {selectedMahasiswa && (
@@ -191,7 +191,7 @@ export default function MahasiswaForm({
             className="btn-secondary"
             onClick={onCancelEdit}
           >
-            ✕ Batal Edit
+            Batal Edit
           </button>
         )}
       </div>

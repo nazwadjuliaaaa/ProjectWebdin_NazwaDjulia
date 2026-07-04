@@ -184,7 +184,11 @@ export default function MahasiswaPage() {
           <Link href="/mahasiswa">
             <button className="btn-secondary nav-btn nav-active">Mahasiswa</button>
           </Link>
-
+          {currentUser.role === "admin" && (
+            <Link href="/users">
+              <button className="btn-secondary nav-btn">Users</button>
+            </Link>
+          )}
           <div className="navbar-user">
             <span className="navbar-user-info">
               {currentUser.nama}

@@ -1,3 +1,4 @@
+// Pertemuan 15: User CRUD Routes
 import { Router } from "express";
 import {
   getAllUsers,
@@ -22,6 +23,6 @@ router.get("/", verifyToken, authorizeRole("admin"), getAllUsers);
 router.post("/", verifyToken, authorizeRole("admin"), createUser);
 router.put("/:id", verifyToken, authorizeRole("admin"), updateUser);
 router.delete("/:id", verifyToken, authorizeRole("admin"), deleteUser);
-router.post("/:id/reset-password", verifyToken, authorizeRole("admin"), resetPasswordByAdmin);
+router.patch("/:id/reset-password", verifyToken, authorizeRole("admin"), resetPasswordByAdmin);
 
 export default router;

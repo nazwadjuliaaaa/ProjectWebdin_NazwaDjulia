@@ -44,7 +44,11 @@ export default function HomePage() {
                 <button className="btn-primary">Data Mahasiswa</button>
               </Link>
 
-
+              {user.role === "admin" && (
+                <Link href="/users">
+                  <button className="btn-secondary">Manajemen User</button>
+                </Link>
+              )}
 
               <button className="btn-danger" onClick={handleLogout}>
                 Logout

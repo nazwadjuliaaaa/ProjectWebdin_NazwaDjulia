@@ -1,3 +1,4 @@
+// Pertemuan 15: CRUD Daftar User dan Reset Password
 import { Request, Response } from "express";
 import bcrypt from "bcrypt";
 import crypto from "crypto";
@@ -149,18 +150,16 @@ export const deleteUser = async (req: AuthRequest, res: Response): Promise<void>
   }
 };
 
-// POST /api/users/:id/reset-password (Admin reset password user)
+function generateTemporaryPassword() {
+  return Math.random().toString(36).slice(-10);
+}
+
+// PATCH /api/users/:id/reset-password (Admin reset password user)
 export const resetPasswordByAdmin = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
-    const { new_password } = req.body;
-
-    if (!new_password || new_password.length < 6) {
-      res.status(400).json({ message: "Password baru minimal 6 karakter." });
-      return;
-    }
-
-    const hashedPassword = await bcrypt.hash(new_password, 10);
+    const temporaryPassword = generateTemporaryPassword();
+    const hashedPassword = await bcrypt.hash(temporaryPassword, 10);
 
     const [result]: any = await db.query(
       "UPDATE users SET password = ? WHERE id = ?",
@@ -172,12 +171,17 @@ export const resetPasswordByAdmin = async (req: AuthRequest, res: Response): Pro
       return;
     }
 
-    res.json({ message: "Password user berhasil direset." });
+    res.json({
+      message: "Password berhasil direset.",
+      temporaryPassword,
+      note: "Tampilkan hanya sekali, lalu minta user mengganti password.",
+    });
   } catch (error) {
     const err = error as Error;
     res.status(500).json({ message: "Terjadi kesalahan server.", error: err.message });
   }
 };
+
 
 // POST /api/users/forgot-password (kirim email reset)
 export const forgotPassword = async (req: Request, res: Response): Promise<void> => {
